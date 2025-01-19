@@ -9,7 +9,7 @@ import (
 )
 
 func main() {	
-	conn := db.Connect()
+	conn := db.Connect("sa", "Epilefac57#$!$24042002", "host.docker.internal", "sigma", 1433)
 	routes.InitialPage(conn)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

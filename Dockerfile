@@ -8,6 +8,12 @@ RUN go mod download \
 
 COPY . .
 
+RUN apt-get update -y \
+    && apt-get install -q -y curl \
+    && curl -fsSL https://deb.nodesource.com/setup_lts.x | bash \
+    && apt-get update -y \
+    && apt-get install nodejs -q -y
+
 #RUN go build -v -o /usr/local/bin/app/ ./...
 
 EXPOSE 8080

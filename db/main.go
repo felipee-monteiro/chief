@@ -1,6 +1,8 @@
 package db
 
 import (
+    "C"
+
 	"database/sql"
 	"fmt"
 	"log"
@@ -9,16 +11,17 @@ import (
 	_ "github.com/microsoft/go-mssqldb"
 )  
 
-func Connect() *sql.DB {
+
+func Connect(username, password, server, database string, port int) *sql.DB {
 	 query := url.Values{}
-	 query.Add("database", "sigma")
+	 query.Add("database", database)
 
 	 u := &url.URL{
 		Scheme:   "sqlserver",
-		User:     url.UserPassword("sa", "Epilefac57#$!$24042002"),
-		Host:     fmt.Sprintf("%s:%d", "host.docker.internal", 1433),
+		User:     url.UserPassword(username, password),
+		Host:     fmt.Sprintf("%s:%d", server, port),
 		RawQuery: query.Encode(),
-	 }
+     }
 	 
 	 db, err := sql.Open("sqlserver", u.String())
 
