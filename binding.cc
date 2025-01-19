@@ -1,22 +1,35 @@
 #include <napi.h>
+#include <iostream>
+#include <dlfcn.h>
 
-Napi::Value Add(const Napi::CallbackInfo& info) {
+typedef const char* (*HelloWorldFunc)();
+
+Napi::String CallGoFunction(const Napi::CallbackInfo& info) {
     Napi::Env env = info.Env();
 
-    if (info.Length() < 2 || !info[0].IsNumber() || !info[1].IsNumber()) {
-        Napi::TypeError::New(env, "Dois números esperados").ThrowAsJavaScriptException();
-        return env.Null();
+    void* handle = dlopen("./libmeumodulo.so", RTLD_LAZY);
+    
+    if (!handle) {
+        throw Napi::Error::New(env, "Falha ao carregar a biblioteca Go");
     }
 
-    double arg0 = info[0].As<Napi::Number>().DoubleValue();
-    double arg1 = info[1].As<Napi::Number>().DoubleValue();
+    HelloWorldFunc helloWorld = (HelloWorldFunc)dlsym(handle, "HelloWorld");
+    
+    if (!helloWorld) {
+        dlclose(handle);
+        throw Napi::Error::New(env, "Função não encontrada na biblioteca Go");
+    }
 
-    return Napi::Number::New(env, arg0 + arg1);
+    const char* result = helloWorld();
+
+    dlclose(handle);
+
+    return Napi::String::New(env, result);
 }
 
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
-    exports.Set(Napi::String::New(env, "add"), Napi::Function::New(env, Add));
+    exports.Set(Napi::String::New(env, "callGoFunction"), Napi::Function::New(env, CallGoFunction));
     return exports;
 }
 
-NODE_API_MODULE(addon, Init)
+NODE_API_MODULE(speedy, Init)

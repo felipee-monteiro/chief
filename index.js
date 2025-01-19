@@ -1,1 +1,4 @@
-console.log(require('node-addon-api').include);
+const t = require("./build/Release/speedy.node");
+
+console.log(t.callGoFunction());
+

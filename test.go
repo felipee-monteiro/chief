@@ -1,12 +1,11 @@
 package main
 
-/*
-#include <stdio.h>
-*/
+// #include <stdint.h>
 import "C"
 
-func HelloGo() {
-    println("Hello from golang !")
+//export HelloWorld
+func HelloWorld() *C.char {
+    return C.CString("Hello from Go!")
 }
 
-func main() {}
+func main() {} 

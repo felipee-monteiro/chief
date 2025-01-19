@@ -39,9 +39,7 @@ func InitialPage(db_conn *sql.DB) {
 				log.Fatal("Erro ao escrever erro de validacao : ", err)
 			}
 
-			_, e := w.Write(message)
-
-			if e != nil {
+			_, e := w.Write(messagbindingf e != nil {
 				log.Fatal("Erro ao escrever resposta de validacao da API")
 			}
 
