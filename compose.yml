@@ -1,0 +1,10 @@
+services:
+  app:
+    build:
+      context: .
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    volumes:
+      - '.:/usr/src/app'
+    ports:
+      - '8080:8080'
