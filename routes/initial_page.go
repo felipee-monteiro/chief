@@ -5,13 +5,15 @@ import (
 	"log"
 	"net/http"
 	"encoding/json"
-        "strings"
+    "strings"
 
 	"api-test/types"
 	"api-test/db"
+    "api-test/utils"
 )
 
 func InitialPage(db_conn *sql.DB) {
+        
 	http.HandleFunc("/api/initial-page", func(w http.ResponseWriter, r *http.Request) {
 		
 		var (
@@ -42,15 +44,37 @@ func InitialPage(db_conn *sql.DB) {
 			if e != nil {
 				log.Fatal("Erro ao escrever resposta de validacao da API")
 			}
+
+            return
 		}
-		
+
+        if !utils.IsNumeric(user_id) {
+            w.WriteHeader(400)
+
+            message := types.ValidationErrorResponse{"ID do usuario precisa ser numerico"}
+
+            value, err := json.Marshal(message)
+            
+            if err != nil {
+                log.Fatal("Erro ao escrever resposta de validacao")
+                return
+            }
+
+            _, e := w.Write(value)
+
+            if e != nil {
+                log.Fatal("Erro ao enviar resposta ao cliente")   
+            }
+
+            return
+        }
 
 		rows := db.Query(`
 			 SELECT
 			COUNT(*) AS total_processos,
 			ISNULL(
 				SUM(
-					CASE
+                		CASE
 						WHEN (pc.dias_na_pauta - pc.dias_em_pausa) <= 20 THEN 1
 						ELSE 0
 						END
@@ -95,7 +119,7 @@ func InitialPage(db_conn *sql.DB) {
 						) AS total_em_pauta_1
 						FROM
 				VIEW_PROCESSOS_CALCULADOS pc
-				WHERE pc.usuario_id = '0608';
+				WHERE pc.usuario_id = '` + user_id +`';
 		`, db_conn)
 
 		for rows.Next() {

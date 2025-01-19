@@ -1,6 +1,6 @@
 package types
 
 type ValidationErrorResponse struct {
-	Message string
+    Message string `json:"message"`
 }
 
