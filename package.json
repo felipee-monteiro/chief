@@ -1,0 +1,27 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "A lightweight and efficient database driver for Go (Golang). This driver simplifies interactions with databases, offering performance and flexibility for developers.",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://felipee-monteiro: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@github.com/felipee-monteiro/go-kidding.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/felipee-monteiro/go-kidding/issues"
+  },
+  "homepage": "https://github.com/felipee-monteiro/go-kidding#readme",
+  "dependencies": {
+    "nan": "^2.22.0",
+    "node-addon-api": "^8.3.0"
+  }
+}

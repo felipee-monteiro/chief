@@ -2,3 +2,4 @@
 Dockerfile
 compose.yml
 .gitignore
+node_modules
