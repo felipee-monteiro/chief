@@ -9,7 +9,3 @@ A lightweight and efficient database driver for Go (Golang). This driver simplif
 - **Custom Query Support**: Allows custom queries and prepared statements.
 - **Connection Pooling**: Efficiently manages database connections for optimal performance.
 - **Lightweight**: Minimal overhead with high performance.
-
-## Installation
-
-To install the driver, use `go get`:
