@@ -1,6 +1,5 @@
 package main
 
-// #include <stdint.h>
 import "C"
 
 //export HelloWorld

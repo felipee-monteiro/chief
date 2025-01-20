@@ -7,13 +7,13 @@ typedef const char* (*HelloWorldFunc)();
 Napi::String CallGoFunction(const Napi::CallbackInfo& info) {
     Napi::Env env = info.Env();
 
-    void* handle = dlopen("./libmeumodulo.so", RTLD_LAZY);
+    void* handle = dlopen("./libspeedy.so", RTLD_LAZY);
     
     if (!handle) {
         throw Napi::Error::New(env, "Falha ao carregar a biblioteca Go");
     }
 
-    HelloWorldFunc helloWorld = (HelloWorldFunc)dlsym(handle, "HelloWorld");
+    HelloWorldFunc helloWorld = (HelloWorldFunc)dlsym(handle, "Connect");
     
     if (!helloWorld) {
         dlclose(handle);
@@ -28,7 +28,7 @@ Napi::String CallGoFunction(const Napi::CallbackInfo& info) {
 }
 
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
-    exports.Set(Napi::String::New(env, "callGoFunction"), Napi::Function::New(env, CallGoFunction));
+    exports.Set(Napi::String::New(env, "connect"), Napi::Function::New(env, CallGoFunction));
     return exports;
 }
 

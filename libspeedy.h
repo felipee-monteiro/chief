@@ -19,8 +19,10 @@ typedef struct { const char *p; ptrdiff_t n; } _GoString_;
 /* Start of preamble from import "C" comments.  */
 
 
-#line 3 "test.go"
- #include <stdint.h>
+#line 3 "main.go"
+
+#include <stdio.h>
+#include <stdlib.h>
 
 #line 1 "cgo-generated-wrapper"
 
@@ -44,7 +46,7 @@ typedef long long GoInt64;
 typedef unsigned long long GoUint64;
 typedef GoInt64 GoInt;
 typedef GoUint64 GoUint;
-typedef size_t GoUintptr;
+ypedef size_t GoUintptr;
 typedef float GoFloat32;
 typedef double GoFloat64;
 #ifdef _MSC_VER
@@ -78,8 +80,6 @@ typedef struct { void *data; GoInt len; GoInt cap; } GoSlice;
 extern "C" {
 #endif
 
-extern char* HelloWorld();
+extern char* Connect(GoString username, GoString password, GoString server, GoString database, GoInt port);
 
 #ifdef __cplusplus
-}
-#endif
