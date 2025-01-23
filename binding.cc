@@ -2,7 +2,7 @@
 #include <iostream>
 #include <dlfcn.h>
 
-typedef const char* (*HelloWorldFunc)();
+typedef const char* (*ConnectFunc)();
 
 Napi::String CallGoFunction(const Napi::CallbackInfo& info) {
     Napi::Env env = info.Env();
@@ -13,7 +13,7 @@ Napi::String CallGoFunction(const Napi::CallbackInfo& info) {
         throw Napi::Error::New(env, "Falha ao carregar a biblioteca Go");
     }
 
-    HelloWorldFunc helloWorld = (HelloWorldFunc)dlsym(handle, "Connect");
+    ConnectFunc helloWorld = (ConnectFunc)dlsym(handle, "Connect");
     
     if (!helloWorld) {
         dlclose(handle);

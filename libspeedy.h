@@ -46,7 +46,7 @@ typedef long long GoInt64;
 typedef unsigned long long GoUint64;
 typedef GoInt64 GoInt;
 typedef GoUint64 GoUint;
-ypedef size_t GoUintptr;
+typedef size_t GoUintptr;
 typedef float GoFloat32;
 typedef double GoFloat64;
 #ifdef _MSC_VER
@@ -83,3 +83,5 @@ extern "C" {
 extern char* Connect(GoString username, GoString password, GoString server, GoString database, GoInt port);
 
 #ifdef __cplusplus
+}
+#endif

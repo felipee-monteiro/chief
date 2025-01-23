@@ -10,14 +10,22 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"net/url"
+    "net/url"
+    "strings"
 
 	_ "github.com/microsoft/go-mssqldb"
 )  
 
 //export Connect
 func Connect(username, password, server, database string, port int) *C.char {
-	query := url.Values{}
+	
+    valuesToValidate := [4]string{username, password, server, database}
+
+    for _, v := range valuesToValidate {
+        if len(strings.TrimSpace(v)) == 0 {                                                                      log.Fatal("Argumentos insuficientes.")                                                         }          
+    }
+
+    query := url.Values{}
 	query.Add("database", database)
 
 	u := &url.URL{
