@@ -80,7 +80,7 @@ typedef struct { void *data; GoInt len; GoInt cap; } GoSlice;
 extern "C" {
 #endif
 
-extern char* Connect(GoString username, GoString password, GoString server, GoString database, GoInt port);
+extern char* Connect(char* username, char* password, char* server, char* database, int port);
 
 #ifdef __cplusplus
 }

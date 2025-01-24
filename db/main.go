@@ -11,27 +11,25 @@ import (
 	"fmt"
 	"log"
     "net/url"
-    "strings"
 
 	_ "github.com/microsoft/go-mssqldb"
 )  
 
 //export Connect
-func Connect(username, password, server, database string, port int) *C.char {
-	
-    valuesToValidate := [4]string{username, password, server, database}
-
-    for _, v := range valuesToValidate {
-        if len(strings.TrimSpace(v)) == 0 {                                                                      log.Fatal("Argumentos insuficientes.")                                                         }          
-    }
+func Connect(username, password, server, database *C.char, port C.int) *C.char {
+    db_username := C.GoString(username)
+    db_password := C.GoString(password)
+    db_database := C.GoString(database)
+    db_server   := C.GoString(server)
+    db_port     := int(port)
 
     query := url.Values{}
-	query.Add("database", database)
+	query.Add("database", db_database)
 
 	u := &url.URL{
 		Scheme:   "sqlserver",
-		User:     url.UserPassword(username, password),
-		Host:     fmt.Sprintf("%s:%d", server, port),
+		User:     url.UserPassword(db_username, db_password),
+		Host:     fmt.Sprintf("%s:%d", db_server, db_port),
 		RawQuery: query.Encode(),
 	}
 

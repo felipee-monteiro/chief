@@ -4,7 +4,8 @@
       "target_name": "speedy",
       "sources": ["binding.cc"],
       "include_dirs": [
-        "/home/felipe/projects/go/api/node_modules/node-addon-api/"
+        "/home/felipe/projects/go/api/node_modules/node-addon-api/",
+        "."
       ],
       "dependencies": [
         "<!(node -p \"require('node-addon-api').gyp\")"
