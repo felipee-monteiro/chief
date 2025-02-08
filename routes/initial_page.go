@@ -39,33 +39,35 @@ func InitialPage(db_conn *sql.DB) {
 				log.Fatal("Erro ao escrever erro de validacao : ", err)
 			}
 
-			_, e := w.Write(messagbindingf e != nil {
+			_, e := w.Write(message) 
+
+			if e != nil {
 				log.Fatal("Erro ao escrever resposta de validacao da API")
 			}
 
                         return
 		}
 
-        if !utils.IsNumeric(user_id) {
-            w.WriteHeader(400)
+                if !utils.IsNumeric(user_id) {
+                      w.WriteHeader(400)
 
-            message := types.ValidationErrorResponse{"ID do usuario precisa ser numerico"}
+            	      message := types.ValidationErrorResponse{"ID do usuario precisa ser numerico"}
 
-            value, err := json.Marshal(message)
+            	      value, err := json.Marshal(message)
             
-            if err != nil {
-                log.Fatal("Erro ao escrever resposta de validacao")
-                return
-            }
+            	      if err != nil {
+                	    log.Fatal("Erro ao escrever resposta de validacao")
+                	    return
+            	      }
 
-            _, e := w.Write(value)
+            	      _, e := w.Write(value)
 
-            if e != nil {
-                log.Fatal("Erro ao enviar resposta ao cliente")   
-            }
+            	      if e != nil {
+                	    log.Fatal("Erro ao enviar resposta ao cliente")   
+            	      }
 
-            return
-        }
+            	      return
+                }
 
 		rows := db.Query(`
 			 SELECT

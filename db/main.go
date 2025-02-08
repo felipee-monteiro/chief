@@ -1,4 +1,4 @@
-package main
+package db
 
 import (
 	"database/sql"
@@ -9,39 +9,38 @@ import (
 	_ "github.com/microsoft/go-mssqldb"
 )  
 
-
-func Connect(username, password, server, database *C.char, port C.int) *C.char {
-    db_username := C.GoString(username)
-    db_password := C.GoString(password)
-    db_database := C.GoString(database)
-    db_server   := C.GoString(server)
-    db_port     := int(port)
+func Connect(username, password, server, database string, port int) *sql.DB {
+    db_username := username
+    db_password := password
+    db_database := database
+    db_server   := server
+    db_port     := port
 
     query := url.Values{}
-	query.Add("database", db_database)
+    query.Add("database", db_database)
+    query.Add("encrypt", "disable")
+    query.Add("TrustServerCertificate", "true") 
 
-	u := &url.URL{
-		Scheme:   "sqlserver",
-		User:     url.UserPassword(db_username, db_password),
-		Host:     fmt.Sprintf("%s:%d", db_server, db_port),
-		RawQuery: query.Encode(),
-	}
+    u := &url.URL{
+	Scheme:   "sqlserver",
+	User:     url.UserPassword(db_username, db_password),
+	Host:     fmt.Sprintf("%s:%d", db_server, db_port),
+	RawQuery: query.Encode(),
+    }
 
-	db, err := sql.Open("sqlserver", u.String())
+    db, err := sql.Open("sqlserver", u.String())
 	
     if err != nil {
-		log.Fatal(err)
-		return C.CString("Erro ao abrir a conexão com o banco de dados")
-	}
+	log.Fatal(err)
+    }
 
-	err = db.Ping()
+    err = db.Ping()
 	
     if err != nil {
-		log.Fatal(err)
-		return C.CString("Erro ao verificar a conexão com o banco de dados")
-	}
+	log.Fatal(err)
+    }
 
-	return C.CString("Conexão com o banco de dados estabelecida com sucesso")
+    return db
 }
 
 func Query(q string, conn *sql.DB) *sql.Rows {		
@@ -53,5 +52,3 @@ func Query(q string, conn *sql.DB) *sql.Rows {
 
 	return result
 }
-
-func main() {}
