@@ -1,21 +1,15 @@
 package main
 
-/*
-#include <stdio.h>
-#include <stdlib.h>
-*/
-import "C"
-
 import (
 	"database/sql"
 	"fmt"
 	"log"
-    "net/url"
+    	"net/url"
 
 	_ "github.com/microsoft/go-mssqldb"
 )  
 
-//export Connect
+
 func Connect(username, password, server, database *C.char, port C.int) *C.char {
     db_username := C.GoString(username)
     db_password := C.GoString(password)

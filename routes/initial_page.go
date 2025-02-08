@@ -5,11 +5,11 @@ import (
 	"log"
 	"net/http"
 	"encoding/json"
-    "strings"
+    	"strings"
 
 	"api-test/types"
 	"api-test/db"
-    "api-test/utils"
+    	"api-test/utils"
 )
 
 func InitialPage(db_conn *sql.DB) {
@@ -43,7 +43,7 @@ func InitialPage(db_conn *sql.DB) {
 				log.Fatal("Erro ao escrever resposta de validacao da API")
 			}
 
-            return
+                        return
 		}
 
         if !utils.IsNumeric(user_id) {
