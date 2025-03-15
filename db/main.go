@@ -4,51 +4,83 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-    	"net/url"
+	"net/url"
 
 	_ "github.com/microsoft/go-mssqldb"
-)  
+)
 
-func Connect(username, password, server, database string, port int) *sql.DB {
-    db_username := username
-    db_password := password
-    db_database := database
-    db_server   := server
-    db_port     := port
-
-    query := url.Values{}
-    query.Add("database", db_database)
-    query.Add("encrypt", "disable")
-    query.Add("TrustServerCertificate", "true") 
-
-    u := &url.URL{
-	Scheme:   "sqlserver",
-	User:     url.UserPassword(db_username, db_password),
-	Host:     fmt.Sprintf("%s:%d", db_server, db_port),
-	RawQuery: query.Encode(),
-    }
-
-    db, err := sql.Open("sqlserver", u.String())
-	
-    if err != nil {
-	log.Fatal(err)
-    }
-
-    err = db.Ping()
-	
-    if err != nil {
-	log.Fatal(err)
-    }
-
-    return db
+type DatabaseConnection struct {
+	instance *sql.DB
+	dsn      *url.URL
+	rawDsn   string
 }
 
-func Query(q string, conn *sql.DB) *sql.Rows {		
-	result, err := conn.Query(q)
+func (d *DatabaseConnection) Connect(username, password, server, database string, port int) *sql.DB {
+
+	if d.instance != nil {
+		return d.instance
+	}
+
+	query := url.Values{}
+	query.Add("database", database)
+	query.Add("encrypt", "disable")
+	query.Add("TrustServerCertificate", "true")
+
+	rawQ := query.Encode()
+
+	u := &url.URL{
+		Scheme:   "sqlserver",
+		User:     url.UserPassword(username, password),
+		Host:     fmt.Sprintf("%s:%d", server, port),
+		RawQuery: rawQ,
+	}
+
+	db, err := sql.Open("sqlserver", u.String())
 
 	if err != nil {
-		log.Fatal("Erro na execução da query: ", err);
+		log.Fatal(err)
+	}
+
+	d.dsn = u
+	d.rawDsn = rawQ
+
+	err = db.Ping()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	d.instance = db
+
+	return db
+}
+
+func (d *DatabaseConnection) GetInstance() (*sql.DB, bool) {
+	var dbInstance = d.instance
+
+	if dbInstance == nil {
+		return nil, false
+	}
+
+	return dbInstance, true
+}
+
+func (d *DatabaseConnection) Query(q string) *sql.Rows {
+	dbInstance, ok := d.GetInstance()
+
+	if !ok {
+		panic("Database not connected, please try again")
+	}
+
+	result, err := dbInstance.Query(q)
+
+	if err != nil {
+		log.Fatal("Erro na execução da query: ", err)
 	}
 
 	return result
+}
+
+func (d *DatabaseConnection) GetRawDsn() string {
+	return d.rawDsn
 }

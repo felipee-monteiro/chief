@@ -1,4 +1,4 @@
-FROM golang:1.23
+FROM golang:1.24
 
 WORKDIR /usr/src/app
 
@@ -14,8 +14,4 @@ RUN apt-get update -y \
     && apt-get update -y \
     && apt-get install nodejs -q -y
 
-#RUN go build -v -o /usr/local/bin/app/ ./...
-
 EXPOSE 8080
-
-CMD ["sleep", "infinity"]

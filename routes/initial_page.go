@@ -1,21 +1,20 @@
-package routes 
+package routes
 
 import (
-	"database/sql"
+	"encoding/json"
 	"log"
 	"net/http"
-	"encoding/json"
-    	"strings"
+	"strings"
 
-	"api-test/types"
 	"api-test/db"
-    	"api-test/utils"
+	"api-test/types"
+	"api-test/utils"
 )
 
-func InitialPage(db_conn *sql.DB) {
-        
+func InitialPage(db_conn *db.DatabaseConnection) {
+
 	http.HandleFunc("/api/initial-page", func(w http.ResponseWriter, r *http.Request) {
-		
+
 		var (
 			total_processos string
 			total_analise   string
@@ -39,37 +38,37 @@ func InitialPage(db_conn *sql.DB) {
 				log.Fatal("Erro ao escrever erro de validacao : ", err)
 			}
 
-			_, e := w.Write(message) 
+			_, e := w.Write(message)
 
 			if e != nil {
 				log.Fatal("Erro ao escrever resposta de validacao da API")
 			}
 
-                        return
+			return
 		}
 
-                if !utils.IsNumeric(user_id) {
-                      w.WriteHeader(400)
+		if !utils.IsNumeric(user_id) {
+			w.WriteHeader(400)
 
-            	      message := types.ValidationErrorResponse{"ID do usuario precisa ser numerico"}
+			message := types.ValidationErrorResponse{"ID do usuario precisa ser numerico"}
 
-            	      value, err := json.Marshal(message)
-            
-            	      if err != nil {
-                	    log.Fatal("Erro ao escrever resposta de validacao")
-                	    return
-            	      }
+			value, err := json.Marshal(message)
 
-            	      _, e := w.Write(value)
+			if err != nil {
+				log.Fatal("Erro ao escrever resposta de validacao")
+				return
+			}
 
-            	      if e != nil {
-                	    log.Fatal("Erro ao enviar resposta ao cliente")   
-            	      }
+			_, e := w.Write(value)
 
-            	      return
-                }
+			if e != nil {
+				log.Fatal("Erro ao enviar resposta ao cliente")
+			}
 
-		rows := db.Query(`
+			return
+		}
+
+		rows := db_conn.Query(`
 			 SELECT
 			COUNT(*) AS total_processos,
 			ISNULL(
@@ -119,34 +118,34 @@ func InitialPage(db_conn *sql.DB) {
 						) AS total_em_pauta_1
 						FROM
 				VIEW_PROCESSOS_CALCULADOS pc
-				WHERE pc.usuario_id = '` + user_id +`';
-		`, db_conn)
+				WHERE pc.usuario_id = '` + user_id + `';
+		`)
 
 		for rows.Next() {
 			if err := rows.Scan(
-				&total_processos, 
-				&total_analise, 
-				&total_atrasados, 
-				&total_10dias, 
-				&total_5dias, 
+				&total_processos,
+				&total_analise,
+				&total_atrasados,
+				&total_10dias,
+				&total_5dias,
 				&total_1dia,
 			); err != nil {
 				log.Fatal(err)
 			}
 		}
-	
+
 		response := types.InitialPageResponse{total_processos, total_analise, total_atrasados, total_10dias, total_5dias, total_1dia}
-		
+
 		result, err := json.Marshal(response)
-	
+
 		if err != nil {
 			log.Fatal("Algo de errado não está certo: ", err)
 		}
-		
+
 		_, e := w.Write(result)
-		
+
 		if e != nil {
-			log.Fatal("Algo de errado não está certo ao escrever a resposta: ",)
-		} 
+			log.Fatal("Algo de errado não está certo ao escrever a resposta")
+		}
 	})
 }
