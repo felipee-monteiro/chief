@@ -51,18 +51,6 @@ go run main.go rollback
 go run main.go history
 ```
 
-## Estrutura do Projeto
-```
-/seu-projeto
-├── migrations/       # Arquivos de migrations
-├── internal/         # Código interno da ferramenta
-│   ├── database/     # Gerenciamento de conexão e execução de migrations
-│   ├── cli/          # Interface de linha de comando
-├── main.go           # Ponto de entrada do projeto
-├── go.mod            # Gerenciamento de dependências
-└── README.md         # Documentação do projeto
-```
-
 ## Contato
 Para mais informações, entre em contato com a equipe de desenvolvimento.
 
