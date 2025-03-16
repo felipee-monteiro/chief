@@ -23,35 +23,54 @@ type CLIOptions struct {
 	}
 }
 
+type FSCache struct {
+	fileInfo os.FileInfo
+}
+
 type CLIParsedValues struct {
 	migrationsDirParsed string
 }
 
-func (p *CLIParser) Parse(c *CLIOptions) (*CLIParsedValues, string) {
-	if len(strings.TrimSpace(c.migrationsDir)) == 0 {
-		fmt.Println(c.migrationsDir)
+func (p *CLIParser) ParseAndCreateDir(migrationsDir string) (*CLIParsedValues, string) {
+	if len(strings.TrimSpace(migrationsDir)) == 0 {
+		fmt.Println(migrationsDir)
 		return nil, "Please specify a valid migrations dir"
 	}
 
-	migrationsDirStat, err := os.Stat(c.migrationsDir)
+	migrationsPathStats, err := os.Stat(migrationsDir)
 
 	if err != nil {
-		return nil, "Please Specify a valid migrations dir"
-	}
+		if os.IsExist(err) {
+			return nil, ""
+		}
 
-	if !migrationsDirStat.IsDir() {
-		return nil, "Please specify a valid migrations dir"
+		if os.IsNotExist(err) {
+			if err := os.Mkdir(migrationsDir, 0755); err != nil {
+				return nil, "Theres some errors while trying to create the migrations dir. Please check it or try again"
+			}
+		}
+
+		return nil, "Something went wrong. Try again later"
 	}
 
 	cp := CLIParsedValues{}
 
-	c.migrationsDir = path.Clean(c.migrationsDir)
+	migrationsDir = path.Clean(migrationsDir)
+	fsCache := FSCache{}
+	fsCache.fileInfo = migrationsPathStats
 
-	if err := os.Mkdir(c.migrationsDir, 0755); err != nil {
-		return nil, "Something wrong happens, please try again later"
-	}
-
-	cp.migrationsDirParsed = c.migrationsDir
+	cp.migrationsDirParsed = migrationsDir
 
 	return &cp, ""
+}
+
+func (p *CLIParser) Parse(c *CLIOptions) *CLIParsedValues {
+
+	values, err := p.ParseAndCreateDir(c.migrationsDir)
+
+	if len(err) > 0 {
+		return nil
+	}
+
+	return values
 }

@@ -10,7 +10,7 @@ func (c *CLIParser) Setup() *CLIOptions {
 
 	flag.BoolVar(&cliOptions.create, "create", false, "Creates a migration")
 	flag.BoolVar(&cliOptions.history, "history", false, "Shows the entire operations history")
-	flag.StringVar(&cliOptions.migrationsDir, "migrations-dir", "", "Sets the migrations file path")
+	flag.StringVar(&cliOptions.migrationsDir, "migrations-dir", "migrations", "Sets the migrations file path")
 
 	flag.Parse()
 
