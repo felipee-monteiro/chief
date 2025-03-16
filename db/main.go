@@ -15,10 +15,10 @@ type DatabaseConnection struct {
 	rawDsn   string
 }
 
-func (d *DatabaseConnection) Connect(username, password, server, database string, port int) *sql.DB {
+func (d *DatabaseConnection) Connect(username, password, server, database string, port int) bool {
 
 	if d.instance != nil {
-		return d.instance
+		return true
 	}
 
 	query := url.Values{}
@@ -52,7 +52,7 @@ func (d *DatabaseConnection) Connect(username, password, server, database string
 
 	d.instance = db
 
-	return db
+	return false
 }
 
 func (d *DatabaseConnection) GetInstance() (*sql.DB, bool) {

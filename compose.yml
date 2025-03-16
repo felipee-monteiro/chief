@@ -2,15 +2,5 @@ services:
   app:
     build:
       context: .
-    extra_hosts:
-      - 'host.docker.internal:host-gateway'
     volumes:
       - '.:/usr/src/app'
-    ports:
-      - '8024:8080'
-  web:
-    image: nginx
-    volumes:
-      - ./infra/nginx.conf:/etc/nginx/nginx.conf
-    ports:
-      - "8080:80"
