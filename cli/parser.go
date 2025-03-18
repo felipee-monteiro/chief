@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"fmt"
 	"os"
 	"path"
 	"strings"
@@ -23,21 +22,16 @@ type CLIOptions struct {
 	}
 }
 
-type FSCache struct {
-	fileInfo os.FileInfo
-}
-
 type CLIParsedValues struct {
 	migrationsDirParsed string
 }
 
-func (p *CLIParser) ParseAndCreateDir(migrationsDir string) (*CLIParsedValues, string) {
+func (p *CLIParser) ParseAndCreateBaseDir(migrationsDir string) (*CLIParsedValues, string) {
 	if len(strings.TrimSpace(migrationsDir)) == 0 {
-		fmt.Println(migrationsDir)
 		return nil, "Please specify a valid migrations dir"
 	}
 
-	migrationsPathStats, err := os.Stat(migrationsDir)
+	_, err := os.Stat(migrationsDir)
 
 	if err != nil {
 		if os.IsExist(err) {
@@ -45,7 +39,7 @@ func (p *CLIParser) ParseAndCreateDir(migrationsDir string) (*CLIParsedValues, s
 		}
 
 		if os.IsNotExist(err) {
-			if err := os.Mkdir(migrationsDir, 0755); err != nil {
+			if err := os.Mkdir(migrationsDir, 0o755); err != nil {
 				return nil, "Theres some errors while trying to create the migrations dir. Please check it or try again"
 			}
 		}
@@ -53,20 +47,14 @@ func (p *CLIParser) ParseAndCreateDir(migrationsDir string) (*CLIParsedValues, s
 		return nil, "Something went wrong. Try again later"
 	}
 
-	cp := CLIParsedValues{}
-
-	migrationsDir = path.Clean(migrationsDir)
-	fsCache := FSCache{}
-	fsCache.fileInfo = migrationsPathStats
-
-	cp.migrationsDirParsed = migrationsDir
-
-	return &cp, ""
+	return &CLIParsedValues{
+		migrationsDirParsed: path.Clean(migrationsDir),
+	}, ""
 }
 
 func (p *CLIParser) Parse(c *CLIOptions) *CLIParsedValues {
 
-	values, err := p.ParseAndCreateDir(c.migrationsDir)
+	values, err := p.ParseAndCreateBaseDir(c.migrationsDir)
 
 	if len(err) > 0 {
 		return nil
