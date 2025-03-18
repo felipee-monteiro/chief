@@ -1,2 +1,5 @@
 .env
-main
+!**/*.go
+!**/*.md
+!**/*.yml
+!**/Dockerfile
