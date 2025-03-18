@@ -32,7 +32,7 @@ func (p *CLIParser) ParseAndCreateBaseDir(migrationsDir string) (bool, string) {
 		return false, "Please specify a valid migrations dir"
 	}
 
-	baseDir := migrationsDir + "/" + time.Now().String()
+	baseDir := migrationsDir + "/" + time.Now().Format(time.RFC3339Nano)
 	_, err := os.Stat(baseDir)
 
 	if err != nil {
