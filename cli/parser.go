@@ -4,6 +4,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"time"
 )
 
 type CLIParser struct {
@@ -26,39 +27,59 @@ type CLIParsedValues struct {
 	migrationsDirParsed string
 }
 
-func (p *CLIParser) ParseAndCreateBaseDir(migrationsDir string) (*CLIParsedValues, string) {
+type FSCache struct {
+	BaseDirStat os.FileInfo
+}
+
+func (p *CLIParser) ParseAndCreateBaseDir(migrationsDir string) (bool, string) {
 	if len(strings.TrimSpace(migrationsDir)) == 0 {
-		return nil, "Please specify a valid migrations dir"
+		return false, "Please specify a valid migrations dir"
 	}
 
-	_, err := os.Stat(migrationsDir)
+	baseDir := migrationsDir + "/" + time.Now().String()
+	baseDirStat, err := os.Stat(baseDir)
+
+	_ = FSCache{BaseDirStat: baseDirStat}
 
 	if err != nil {
 		if os.IsExist(err) {
-			return nil, ""
+			return true, path.Clean(baseDir)
 		}
 
 		if os.IsNotExist(err) {
-			if err := os.Mkdir(migrationsDir, 0o755); err != nil {
-				return nil, "Theres some errors while trying to create the migrations dir. Please check it or try again"
+
+			if err := os.MkdirAll(baseDir, 0o755); err != nil {
+				return false, "Theres some errors while trying to create the migrations dir. Please check it or try again"
 			}
 		}
 
-		return nil, "Something went wrong. Try again later"
+		return false, "Something went wrong. Try again later"
 	}
 
-	return &CLIParsedValues{
-		migrationsDirParsed: path.Clean(migrationsDir),
-	}, ""
+	upFile, err := os.Create(path.Clean(baseDir + "up.sql"))
+
+	if err != nil {
+		panic("Error while trying to create the migration files")
+	}
+
+	downFile, err := os.Create(path.Clean(baseDir + "down.sql"))
+
+	if err != nil {
+		panic("Error while trying to create the migration files")
+	}
+
+	upFile.Close()
+	downFile.Close()
+
+	return true, path.Clean(baseDir)
 }
 
-func (p *CLIParser) Parse(c *CLIOptions) *CLIParsedValues {
+func (p *CLIParser) Parse(c *CLIOptions) {
+	if c.create {
+		ok, _ := p.ParseAndCreateBaseDir(c.migrationsDir)
 
-	values, err := p.ParseAndCreateBaseDir(c.migrationsDir)
-
-	if len(err) > 0 {
-		return nil
+		if !ok {
+			panic("Something wrong happened while trying to create the migration")
+		}
 	}
-
-	return values
 }
