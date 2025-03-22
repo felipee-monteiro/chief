@@ -38,9 +38,8 @@ func (p *CLIParser) ParseAndCreateBaseDir(migrationsDir, migrationName string) (
 	}
 
 	baseDir := path.Clean(migrationsDir + "/" + time.Now().Format(time.RFC3339Nano) + "_" + migrationName)
-	_, err := os.Stat(baseDir)
 
-	if err != nil {
+	if _, err := os.Stat(baseDir); err != nil {
 		if os.IsExist(err) {
 			return true, baseDir
 		}
