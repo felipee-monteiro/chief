@@ -1,9 +1,9 @@
 package cli
 
 import (
+	"chief/utils"
 	"os"
 	"path"
-	"strings"
 	"time"
 )
 
@@ -14,6 +14,7 @@ type CLIParser struct {
 type CLIOptions struct {
 	create          bool
 	migrationsDir   string
+	migrationName   string
 	history         bool
 	databaseOptions struct {
 		server   string
@@ -27,17 +28,21 @@ type CLIParsedValues struct {
 	migrationsDirParsed string
 }
 
-func (p *CLIParser) ParseAndCreateBaseDir(migrationsDir string) (bool, string) {
-	if len(strings.TrimSpace(migrationsDir)) == 0 {
+func (p *CLIParser) ParseAndCreateBaseDir(migrationsDir, migrationName string) (bool, string) {
+	if !utils.IsValidString(migrationsDir) {
 		return false, "Please specify a valid migrations dir"
 	}
 
-	baseDir := migrationsDir + "/" + time.Now().Format(time.RFC3339Nano)
+	if !utils.IsValidString(migrationName) {
+		return false, "Please specify a valid migration name"
+	}
+
+	baseDir := path.Clean(migrationsDir + "/" + time.Now().Format(time.RFC3339Nano) + "_" + migrationName)
 	_, err := os.Stat(baseDir)
 
 	if err != nil {
 		if os.IsExist(err) {
-			return true, path.Clean(baseDir)
+			return true, baseDir
 		}
 
 		if os.IsNotExist(err) {
@@ -55,12 +60,12 @@ func (p *CLIParser) ParseAndCreateBaseDir(migrationsDir string) (bool, string) {
 		}
 	}
 
-	return true, ""
+	return true, baseDir
 }
 
 func (p *CLIParser) Parse(c *CLIOptions) {
 	if c.create {
-		ok, message := p.ParseAndCreateBaseDir(c.migrationsDir)
+		ok, message := p.ParseAndCreateBaseDir(c.migrationsDir, c.migrationName)
 
 		if !ok {
 			panic(message)

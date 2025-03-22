@@ -12,7 +12,7 @@ func IsNumeric(v string) bool {
 }
 
 func IsValidString(v string) bool {
-	return len(strings.TrimSpace(v)) == 0
+	return len(strings.TrimSpace(v)) > 0
 }
 
 func IsDirValid(stat os.FileInfo) bool {
