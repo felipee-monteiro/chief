@@ -11,6 +11,10 @@ Este projeto é uma ferramenta interna desenvolvida em Golang para gerenciar mig
 - Reverter migrations aplicadas
 - Listar o histórico de migrations executadas
 
+## Roadmap (Prioridades)
+
+- [x] Criação de migrations
+
 ## Uso
 
 ### Criar uma nova migration
