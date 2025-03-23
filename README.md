@@ -15,6 +15,7 @@ Este projeto é uma ferramenta interna desenvolvida em Golang para gerenciar mig
 
 - [x] Criação de migrations
 - [ ] Execução de migrations
+- [ ] Rollback de migrations
 
 ## Uso
 
