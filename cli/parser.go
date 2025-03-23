@@ -2,6 +2,7 @@ package cli
 
 import (
 	"chief/utils"
+	"io/fs"
 	"os"
 	"path"
 	"time"
@@ -26,6 +27,8 @@ type CLIOptions struct {
 
 type CLIParsedValues struct {
 	migrationsDirParsed string
+	fsys                fs.FS
+	migrationsFiles     []fs.DirEntry
 }
 
 func (p *CLIParser) ParseAndCreateBaseDir(migrationsDir, migrationName string) (bool, string) {
