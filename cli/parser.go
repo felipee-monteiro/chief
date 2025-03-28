@@ -1,10 +1,13 @@
 package cli
 
 import (
+	"bufio"
 	"chief/utils"
 	"fmt"
 	"io/fs"
+	"log"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
 	"time"
@@ -76,7 +79,36 @@ func (p *CLIParser) Execute(baseDir string) (bool, string) {
 
 		if !d.IsDir() {
 			if d.Name() == "up.sql" {
-				fmt.Println("Arquivo de up encontrado")
+				if _, err := exec.LookPath("sqlcmd"); err != nil {
+					fmt.Println("The \"sqlcmd\" utility MUST be installed")
+					os.Exit(1)
+				}
+
+				otp := exec.Command("sqlcmd", "-S", "localhost", "-d", "sigma", "-U", "sa", "-P", "teste123")
+
+				stdout, err := otp.StdoutPipe()
+
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				if err := otp.Start(); err != nil {
+					log.Fatal(err)
+				}
+
+				scanner := bufio.NewScanner(stdout)
+
+				for scanner.Scan() {
+					fmt.Println(scanner.Text())
+				}
+
+				if err := scanner.Err(); err != nil {
+					log.Fatal(err)
+				}
+
+				if err := otp.Wait(); err != nil {
+					log.Fatal(err)
+				}
 			}
 		}
 

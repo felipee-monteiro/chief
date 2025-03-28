@@ -22,7 +22,7 @@
   // "features": {},
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
-  "forwardPorts": [8024],
+  "forwardPorts": [8024, 1433],
 
   // Uncomment the next line if you want start specific services in your Docker Compose config.
   // "runServices": [],
