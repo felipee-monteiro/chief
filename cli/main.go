@@ -2,6 +2,7 @@ package cli
 
 import (
 	"flag"
+	"log"
 	"os"
 	"time"
 )
@@ -18,14 +19,14 @@ func (c *CLIParser) Setup() *CLIOptions {
 	}
 
 	if _, err := time.LoadLocation("America/Sao_Paulo"); err != nil {
-		os.Exit(1)
+		log.Fatal("Cannot set location env variable")
 		return nil
 	}
 
 	flag.BoolVar(&cliOptions.create, "create", false, "Creates a migration")
 	flag.BoolVar(&cliOptions.migrate, "migrate", false, "Execute all migrations")
 	flag.BoolVar(&cliOptions.history, "history", false, "Shows the entire operations history")
-	flag.StringVar(&cliOptions.migrationsDir, "migrations-dir", "migrations", "Sets the migrations file path")
+	flag.StringVar(&cliOptions.migrationsDir, "migrations-dir", "migrations", "Sets the migrations dir path")
 	flag.StringVar(&cliOptions.migrationName, "name", "migration", "Customize the default migrate name. The value will be truncated with the prefix.")
 
 	flag.Parse()

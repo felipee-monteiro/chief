@@ -84,9 +84,11 @@ func (p *CLIParser) Execute(baseDir string) (bool, string) {
 					os.Exit(1)
 				}
 
-				otp := exec.Command("sqlcmd", "-S", "localhost", "-d", "sigma", "-U", "sa", "-P", "teste123")
+				otp := exec.Command("sqlcmd", "-S", "localhost", "-d", "sigma", "-U", "sa", "-P", "Epilefac57#$!$24042002", "-i", path, "-C")
 
-				stdout, err := otp.StdoutPipe()
+				fmt.Println("Executing " + path + "...")
+
+				stderr, err := otp.StderrPipe()
 
 				if err != nil {
 					log.Fatal(err)
@@ -96,7 +98,7 @@ func (p *CLIParser) Execute(baseDir string) (bool, string) {
 					log.Fatal(err)
 				}
 
-				scanner := bufio.NewScanner(stdout)
+				scanner := bufio.NewScanner(stderr)
 
 				for scanner.Scan() {
 					fmt.Println(scanner.Text())
