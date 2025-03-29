@@ -7,7 +7,7 @@ Este projeto é uma ferramenta interna desenvolvida em Golang para gerenciar mig
 ## Roadmap (Prioridades)
 
 - [x] Criação de migrations
-- [z] Execução de migrations
+- [x] Execução de migrations
 - [ ] Rollback de migrations
 
 ## Uso
