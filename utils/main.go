@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"os"
 	"strconv"
 	"strings"
 )
@@ -13,8 +12,4 @@ func IsNumeric(v string) bool {
 
 func IsValidString(v string) bool {
 	return len(strings.TrimSpace(v)) > 0
-}
-
-func IsDirValid(stat os.FileInfo) bool {
-	return stat.IsDir()
 }

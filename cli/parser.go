@@ -77,7 +77,7 @@ func (p *CLIParser) ExecuteMigration(path string) {
 		os.Exit(1)
 	}
 
-	otp := exec.Command("sqlcmd", "-S", "localhost", "-d", "sigma", "-U", "sa", "-P", "Epilefac57#$!$24042002", "-i", path, "-C")
+	otp := exec.Command("sqlcmd", "-S", "localhost", "-d", "sigma", "-U", "sa", "-P", "-i", path, "-C")
 
 	fmt.Println("Executing " + path + "...")
 
