@@ -71,6 +71,41 @@ func (p *CLIParser) ParseAndCreateBaseDir(migrationsDir, migrationName string) (
 	return true, baseDir
 }
 
+func (p *CLIParser) ExecuteMigration(path string) {
+	if _, err := exec.LookPath("sqlcmd"); err != nil {
+		fmt.Println("The \"sqlcmd\" utility MUST be installed")
+		os.Exit(1)
+	}
+
+	otp := exec.Command("sqlcmd", "-S", "localhost", "-d", "sigma", "-U", "sa", "-P", "Epilefac57#$!$24042002", "-i", path, "-C")
+
+	fmt.Println("Executing " + path + "...")
+
+	stderr, err := otp.StderrPipe()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err := otp.Start(); err != nil {
+		log.Fatal(err)
+	}
+
+	scanner := bufio.NewScanner(stderr)
+
+	for scanner.Scan() {
+		fmt.Println(scanner.Text())
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := otp.Wait(); err != nil {
+		log.Fatal(err)
+	}
+}
+
 func (p *CLIParser) Execute(baseDir string) (bool, string) {
 	err := filepath.WalkDir(baseDir, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
@@ -79,38 +114,7 @@ func (p *CLIParser) Execute(baseDir string) (bool, string) {
 
 		if !d.IsDir() {
 			if d.Name() == "up.sql" {
-				if _, err := exec.LookPath("sqlcmd"); err != nil {
-					fmt.Println("The \"sqlcmd\" utility MUST be installed")
-					os.Exit(1)
-				}
-
-				otp := exec.Command("sqlcmd", "-S", "localhost", "-d", "sigma", "-U", "sa", "-P", "Epilefac57#$!$24042002", "-i", path, "-C")
-
-				fmt.Println("Executing " + path + "...")
-
-				stderr, err := otp.StderrPipe()
-
-				if err != nil {
-					log.Fatal(err)
-				}
-
-				if err := otp.Start(); err != nil {
-					log.Fatal(err)
-				}
-
-				scanner := bufio.NewScanner(stderr)
-
-				for scanner.Scan() {
-					fmt.Println(scanner.Text())
-				}
-
-				if err := scanner.Err(); err != nil {
-					log.Fatal(err)
-				}
-
-				if err := otp.Wait(); err != nil {
-					log.Fatal(err)
-				}
+				p.ExecuteMigration(path)
 			}
 		}
 
