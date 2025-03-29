@@ -1,12 +1,16 @@
 package main
 
 import (
-	"chief/cli"
 	"os"
+
+	"github.com/felipee-monteiro/chief/cli"
+	"github.com/felipee-monteiro/chief/db"
 )
 
 func main() {
-	ci := cli.CLIParser{Strict: true}
+	db.Connect()
+
+	ci := cli.CLIParser{}
 	ci.Parse(ci.Setup())
 
 	os.Exit(0)
