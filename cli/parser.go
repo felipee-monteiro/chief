@@ -27,6 +27,7 @@ type CLIOptions struct {
 		host     string
 		port     int64
 		user     string
+		database string
 		password string
 	}
 }
@@ -84,9 +85,7 @@ func (p *CLIParser) ExecuteMigration(path string, c *CLIOptions) {
 		os.Exit(1)
 	}
 
-	otp := exec.Command("sqlcmd", "-S", c.datatabseOptions.host, "-d", "sigma", "-U", c.datatabseOptions.user, "-P", c.datatabseOptions.password, "-i", path, "-C")
-
-	fmt.Println("Executing " + path + "...")
+	otp := exec.Command("sqlcmd", "-S", c.datatabseOptions.host, "-d", c.datatabseOptions.database, "-U", c.datatabseOptions.user, "-P", c.datatabseOptions.password, "-i", path, "-C")
 
 	stderr, err := otp.StderrPipe()
 
@@ -128,6 +127,7 @@ func (p *CLIParser) Execute(baseDir string, c *CLIOptions) (bool, string) {
 		if !d.IsDir() {
 			if d.Name() == "up.sql" {
 				p.ExecuteMigration(path, c)
+				fmt.Println("Executing " + path + "...")
 			}
 		}
 

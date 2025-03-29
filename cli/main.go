@@ -32,9 +32,10 @@ func (c *CLIParser) Setup() *CLIOptions {
 	flag.StringVar(&cliOptions.migrationsDir, "migrations-dir", "migrations", "Sets the migrations dir path")
 	flag.StringVar(&cliOptions.migrationName, "name", "migration", "Customize the default migrate name. The value will be truncated with the prefix.")
 	flag.StringVar(&cliOptions.datatabseOptions.host, "host", "localhost", "Sets the database host")
+	flag.StringVar(&cliOptions.datatabseOptions.database, "database", "", "Sets the database name")
 	flag.Int64Var(&cliOptions.datatabseOptions.port, "port", 1433, "Sets the database port")
 	flag.StringVar(&cliOptions.datatabseOptions.user, "user", os.Getenv("SQLCMDUSER"), "Sets the database user (https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-use-scripting-variables?view=sql-server-ver16#sqlcmd-scripting-variables)")
-	flag.StringVar(&cliOptions.datatabseOptions.password, "password", os.Getenv("SQLCMDPASSWORD"), "Sets the database password (https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-use-scripting-variables?view=sql-server-ver16#sqlcmd-scripting-variables)")
+	flag.StringVar(&cliOptions.datatabseOptions.password, "password", os.Getenv("SQLCMDPASSWORD"), "Sets the database password. [WARNING] If the password contains special chars, use single quotes (https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-use-scripting-variables?view=sql-server-ver16#sqlcmd-scripting-variables)")
 
 	flag.Parse()
 
