@@ -78,7 +78,6 @@ func (p *CLIParser) ParseAndCreateBaseDir(migrationsDir, migrationName string) (
 // on the "sigma" database using the specified connection parameters.
 // If "sqlcmd" is not installed, the function will print an error message and exit.
 // It also captures and logs any errors or output from the execution process.
-
 func (p *CLIParser) ExecuteMigration(path string, c *CLIOptions) {
 	if _, err := exec.LookPath("sqlcmd"); err != nil {
 		fmt.Println("The \"sqlcmd\" utility MUST be installed")
@@ -126,8 +125,8 @@ func (p *CLIParser) Execute(baseDir string, c *CLIOptions) (bool, string) {
 
 		if !d.IsDir() {
 			if d.Name() == "up.sql" {
-				p.ExecuteMigration(path, c)
 				fmt.Println("Executing " + path + "...")
+				p.ExecuteMigration(path, c)
 			}
 		}
 
@@ -160,8 +159,10 @@ func (p *CLIParser) Parse(c *CLIOptions) {
 	}
 
 	if c.migrate {
-		if utils.IsValidString(c.migrationName) {
-			// TODO: implementar execução de migration individual
+		if utils.IsValidString(c.migrationName) && c.migrationName != "migration" {
+			p.ExecuteMigration(path.Clean(c.migrationsDir+"/"+c.migrationName+"/up.sql"), c)
+			os.Exit(0)
+			return
 		}
 
 		ok, message := p.Execute(path.Clean(c.migrationsDir), c)
