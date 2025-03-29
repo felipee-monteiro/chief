@@ -109,6 +109,8 @@ func (p *CLIParser) ExecuteMigration(path string, c *CLIOptions) {
 	if err := otp.Wait(); err != nil {
 		log.Fatal(err)
 	}
+
+	fmt.Println("Migration executed successfully")
 }
 
 // Execute traverses the given base directory to find and execute "up.sql"
