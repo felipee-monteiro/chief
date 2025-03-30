@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/felipee-monteiro/chief/db"
 	"github.com/felipee-monteiro/chief/utils"
 )
 
@@ -31,6 +32,8 @@ type CLIOptions struct {
 		password string
 	}
 }
+
+var connection = db.Connect()
 
 // ParseAndCreateBaseDir parses the migrations dir and migration name from the CLI args, then creates a new migration base dir
 // if it doesn't exist. It creates the up.sql and down.sql files in the new dir.
@@ -80,37 +83,43 @@ func (p *CLIParser) ParseAndCreateBaseDir(migrationsDir, migrationName string) (
 // It also captures and logs any errors or output from the execution process.
 func (p *CLIParser) ExecuteMigration(path string, c *CLIOptions) {
 	if _, err := exec.LookPath("sqlcmd"); err != nil {
-		fmt.Println("The \"sqlcmd\" utility MUST be installed")
+		fmt.Println("The \"sqlcmd\" utility MUST be installed and available in $PATH")
 		os.Exit(1)
 	}
 
-	otp := exec.Command("sqlcmd", "-S", c.datatabseOptions.host, "-d", c.datatabseOptions.database, "-U", c.datatabseOptions.user, "-P", c.datatabseOptions.password, "-i", path, "-C")
+	if !db.IsExecuted(connection, c.migrationName) {
+		otp := exec.Command("sqlcmd", "-S", c.datatabseOptions.host, "-d", c.datatabseOptions.database, "-U", c.datatabseOptions.user, "-P", c.datatabseOptions.password, "-i", path, "-C")
 
-	stderr, err := otp.StderrPipe()
+		fmt.Println("Executing " + path + "...")
 
-	if err != nil {
-		log.Fatal(err)
+		stderr, err := otp.StderrPipe()
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if err := otp.Start(); err != nil {
+			log.Fatal(err)
+		}
+
+		scanner := bufio.NewScanner(stderr)
+
+		for scanner.Scan() {
+			fmt.Println(scanner.Text())
+		}
+
+		if err := scanner.Err(); err != nil {
+			log.Fatal(err)
+		}
+
+		if err := otp.Wait(); err != nil {
+			log.Fatal(err)
+		}
+
+		db.CreateMigration(connection, c.migrationName, path+"/up.sql", path+"/down.sql")
+
+		fmt.Println("Migration executed successfully")
 	}
-
-	if err := otp.Start(); err != nil {
-		log.Fatal(err)
-	}
-
-	scanner := bufio.NewScanner(stderr)
-
-	for scanner.Scan() {
-		fmt.Println(scanner.Text())
-	}
-
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
-	}
-
-	if err := otp.Wait(); err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println("Migration executed successfully")
 }
 
 // Execute traverses the given base directory to find and execute "up.sql"
@@ -118,8 +127,10 @@ func (p *CLIParser) ExecuteMigration(path string, c *CLIOptions) {
 // execution. If any error occurs during the directory traversal or execution,
 // it returns false and the error message. On success, it returns true and an
 // empty string.
-
 func (p *CLIParser) Execute(baseDir string, c *CLIOptions) (bool, string) {
+
+	db.Migrate(connection)
+
 	err := filepath.WalkDir(baseDir, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -127,7 +138,6 @@ func (p *CLIParser) Execute(baseDir string, c *CLIOptions) (bool, string) {
 
 		if !d.IsDir() {
 			if d.Name() == "up.sql" {
-				fmt.Println("Executing " + path + "...")
 				p.ExecuteMigration(path, c)
 			}
 		}
@@ -138,6 +148,8 @@ func (p *CLIParser) Execute(baseDir string, c *CLIOptions) (bool, string) {
 	if err != nil {
 		return false, err.Error()
 	}
+
+	db.Close(connection)
 
 	return true, ""
 }
