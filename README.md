@@ -2,7 +2,7 @@
 
 ## Visão Geral
 
-Este projeto é uma ferramenta interna desenvolvida em Golang para gerenciar migrations de banco de dados. Ele permite criar, aplicar e reverter migrations de forma simples e eficiente, garantindo consistência nos ambientes de desenvolvimento e produção.
+Este projeto é uma ferramenta desenvolvida em Golang para gerenciar migrations de banco de dados. Ele permite criar, aplicar e reverter migrations de forma simples e eficiente, garantindo consistência nos ambientes de desenvolvimento e produção.
 
 ## Roadmap (Prioridades)
 
@@ -15,23 +15,23 @@ Este projeto é uma ferramenta interna desenvolvida em Golang para gerenciar mig
 ### Criar uma nova migration
 
 ```sh
-go run main.go -create <nome_da_migration>
+chief -create <nome_da_migration>
 ```
 
 ### Aplicar migrations pendentes
 
 ```sh
-go run main.go -migrate
+chief -migrate
 ```
 
 ### Reverter a última migration
 
 ```sh
-go run main.go -rollback
+chief -rollback
 ```
 
 ### Listar migrations aplicadas
 
 ```sh
-go run main.go -history
+chief -history
 ```
