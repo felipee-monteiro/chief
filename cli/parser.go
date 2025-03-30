@@ -87,7 +87,7 @@ func (p *CLIParser) ExecuteMigration(path string, c *CLIOptions) {
 		os.Exit(1)
 	}
 
-	if !db.IsExecuted(connection, c.migrationName) {
+	if !db.IsExecuted(connection, c.migrationName, c.datatabseOptions.database) {
 		otp := exec.Command("sqlcmd", "-S", c.datatabseOptions.host, "-d", c.datatabseOptions.database, "-U", c.datatabseOptions.user, "-P", c.datatabseOptions.password, "-i", path, "-C")
 
 		fmt.Println("Executing " + path + "...")
@@ -116,7 +116,7 @@ func (p *CLIParser) ExecuteMigration(path string, c *CLIOptions) {
 			log.Fatal(err)
 		}
 
-		db.CreateMigration(connection, c.migrationName, path+"/up.sql", path+"/down.sql")
+		db.CreateMigration(connection, c.migrationName, path+"/up.sql", path+"/down.sql", c.datatabseOptions.database)
 
 		fmt.Println("Migration executed successfully")
 	}
@@ -176,6 +176,12 @@ func (p *CLIParser) Parse(c *CLIOptions) {
 		if utils.IsValidString(c.migrationName) && c.migrationName != "migration" {
 			p.ExecuteMigration(path.Clean(c.migrationsDir+"/"+c.migrationName+"/up.sql"), c)
 			os.Exit(0)
+			return
+		}
+
+		if !utils.IsValidString(c.datatabseOptions.database) {
+			fmt.Println("Database name is required")
+			os.Exit(1)
 			return
 		}
 

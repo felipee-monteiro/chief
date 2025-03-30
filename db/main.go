@@ -54,6 +54,7 @@ func CreateTables(db *sql.DB) {
 			name TEXT NOT NULL,
 			up_sql TEXT NOT NULL,
 			down_sql TEXT NOT NULL,
+			database TEXT NOT NULL,
 			executed BOOLEAN NOT NULL DEFAULT 0,
 			created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 		);
@@ -125,13 +126,13 @@ func MigrateAndDrop(db *sql.DB) {
 // The given name, up SQL script, and down SQL script are inserted into the
 // table. If any error occurs during insertion, it logs the error and exits the
 // program.
-func CreateMigration(db *sql.DB, name, up, down string) {
+func CreateMigration(db *sql.DB, name, up, down, database string) {
 	sql := `
-		INSERT INTO migrations (name, up_sql, down_sql, executed)
-		VALUES (?, ?, ?, 1);
+		INSERT INTO migrations (name, up_sql, down_sql, executed, database)
+		VALUES (?, ?, ?, 1, ?);
 	`
 
-	if _, err := db.Exec(sql, name, up, down); err != nil {
+	if _, err := db.Exec(sql, name, up, down, database); err != nil {
 		log.Fatal(err)
 		os.Exit(1)
 	}
@@ -140,15 +141,15 @@ func CreateMigration(db *sql.DB, name, up, down string) {
 // IsExecuted returns true if the migration with the given name has been
 // executed, and false otherwise. If an error occurs while querying the
 // database, it logs the error and exits the program.
-func IsExecuted(db *sql.DB, name string) bool {
+func IsExecuted(db *sql.DB, name, database string) bool {
 	sql := `
 		SELECT executed
 		FROM migrations
-		WHERE name = ?;
+		WHERE name = ? AND executed = 1 AND database = ?;
 	`
 
 	var executed bool
-	if err := db.QueryRow(sql, name).Scan(&executed); err != nil {
+	if err := db.QueryRow(sql, name, database).Scan(&executed); err != nil {
 		return false
 	}
 
