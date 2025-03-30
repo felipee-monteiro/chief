@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -129,8 +130,7 @@ func (p *CLIParser) ExecuteMigration(path string, c *CLIOptions) {
 // empty string.
 func (p *CLIParser) Execute(baseDir string, c *CLIOptions) (bool, string) {
 	if _, err := exec.LookPath("sqlcmd"); err != nil {
-		fmt.Println("The \"sqlcmd\" utility MUST be installed and available in $PATH")
-		os.Exit(1)
+		return false, "The \"sqlcmd\" utility MUST be installed and available in $PATH"
 	}
 
 	db.Migrate(connection)
@@ -150,6 +150,10 @@ func (p *CLIParser) Execute(baseDir string, c *CLIOptions) (bool, string) {
 	})
 
 	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return false, "migration not found. did you create it?"
+		}
+
 		return false, err.Error()
 	}
 
@@ -192,7 +196,7 @@ func (p *CLIParser) Parse(c *CLIOptions) {
 		ok, message := p.Execute(path.Clean(c.migrationsDir), c)
 
 		if !ok && utils.IsValidString(message) {
-			panic(message)
+			log.Fatal(message)
 		}
 	}
 }
