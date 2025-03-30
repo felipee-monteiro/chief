@@ -15,7 +15,7 @@ Este projeto é uma ferramenta desenvolvida em Golang para gerenciar migrations 
 ### Criar uma nova migration
 
 ```sh
-chief -create <nome_da_migration>
+chief -create --name <nome_da_migration>
 ```
 
 ### Aplicar migrations pendentes
