@@ -2,12 +2,14 @@ package db
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"net/url"
 	"os"
 	"path"
 	"path/filepath"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -26,10 +28,9 @@ func Connect() *sql.DB {
 	}
 
 	url := url.URL{
-		Scheme: "file",
-		Path:   path.Join(abs, "chief.sqlite3"),
-		RawQuery: "_pragma=foreign_keys(1)&" +
-			"_time_format=sqlite",
+		Scheme:   "file",
+		Path:     path.Join(abs, "chief.sqlite3"),
+		RawQuery: "_pragma=foreign_keys(1)&_time_format=sqlite",
 	}
 
 	db, err := sql.Open("sqlite3", url.String())
@@ -128,12 +129,11 @@ func MigrateAndDrop(db *sql.DB) {
 // program.
 func CreateMigration(db *sql.DB, name, up, down, database string) {
 	sql := `
-		INSERT INTO migrations (name, up_sql, down_sql, executed, database)
-		VALUES (?, ?, ?, 1, ?);
+		INSERT INTO migrations (name, up_sql, down_sql, executed, database, created_at)
+		VALUES (?, ?, ?, 1, ?, ?);
 	`
 
-	if _, err := db.Exec(sql, name, up, down, database); err != nil {
-		log.Fatal(err)
+	if _, err := db.Exec(sql, name, up, down, database, time.Now()); err != nil {
 		os.Exit(1)
 	}
 }
@@ -141,17 +141,21 @@ func CreateMigration(db *sql.DB, name, up, down, database string) {
 // IsExecuted returns true if the migration with the given name has been
 // executed, and false otherwise. If an error occurs while querying the
 // database, it logs the error and exits the program.
-func IsExecuted(db *sql.DB, name, database string) bool {
+func IsExecuted(db *sql.DB, name, database string) (bool, error) {
 	sql := `
-		SELECT executed
-		FROM migrations
-		WHERE name = ? AND executed = 1 AND database = ?;
+	SELECT executed
+	FROM migrations
+	WHERE name = ? AND database = ?;
 	`
 
 	var executed bool
 	if err := db.QueryRow(sql, name, database).Scan(&executed); err != nil {
-		return false
+		if err.Error() == "sql: no rows in result set" {
+			return false, errors.New("migration not found. Did you create it?")
+		}
+
+		return false, err
 	}
 
-	return executed
+	return executed, nil
 }

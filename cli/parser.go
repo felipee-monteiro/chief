@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/felipee-monteiro/chief/db"
@@ -82,12 +83,11 @@ func (p *CLIParser) ParseAndCreateBaseDir(migrationsDir, migrationName string) (
 // If "sqlcmd" is not installed, the function will print an error message and exit.
 // It also captures and logs any errors or output from the execution process.
 func (p *CLIParser) ExecuteMigration(path string, c *CLIOptions) {
-	if _, err := exec.LookPath("sqlcmd"); err != nil {
-		fmt.Println("The \"sqlcmd\" utility MUST be installed and available in $PATH")
-		os.Exit(1)
-	}
 
-	if !db.IsExecuted(connection, c.migrationName, c.datatabseOptions.database) {
+	filename := strings.Split(path, "/")[1]
+	migrationName := strings.Split(filename, "_")[1]
+
+	if ok, _ := db.IsExecuted(connection, migrationName, c.datatabseOptions.database); !ok {
 		otp := exec.Command("sqlcmd", "-S", c.datatabseOptions.host, "-d", c.datatabseOptions.database, "-U", c.datatabseOptions.user, "-P", c.datatabseOptions.password, "-i", path, "-C")
 
 		fmt.Println("Executing " + path + "...")
@@ -116,7 +116,7 @@ func (p *CLIParser) ExecuteMigration(path string, c *CLIOptions) {
 			log.Fatal(err)
 		}
 
-		db.CreateMigration(connection, c.migrationName, path+"/up.sql", path+"/down.sql", c.datatabseOptions.database)
+		db.CreateMigration(connection, migrationName, path+"/up.sql", path+"/down.sql", c.datatabseOptions.database)
 
 		fmt.Println("Migration executed successfully")
 	}
@@ -128,6 +128,10 @@ func (p *CLIParser) ExecuteMigration(path string, c *CLIOptions) {
 // it returns false and the error message. On success, it returns true and an
 // empty string.
 func (p *CLIParser) Execute(baseDir string, c *CLIOptions) (bool, string) {
+	if _, err := exec.LookPath("sqlcmd"); err != nil {
+		fmt.Println("The \"sqlcmd\" utility MUST be installed and available in $PATH")
+		os.Exit(1)
+	}
 
 	db.Migrate(connection)
 
