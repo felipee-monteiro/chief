@@ -1,4 +1,4 @@
-GOBUILDFLAGS = -ldflags "-s -w" -compiler gc -gcflags "-N -l"
+GOBUILDFLAGS = -ldflags "-s -w" -trimpath
 
 .PHONY: build
 build:
